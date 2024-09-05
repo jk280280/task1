@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+  parameters {
+        string(name: 'DOCKER_IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to use')
+        string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region for EKS and ECR')
+        string(name: 'TERRAFORM_WORKSPACE', defaultValue: 'default', description: 'Terraform workspace name')
+    }
+    environment {
+        DOCKER_IMAGE = "aws_account_id.dkr.ecr.us-west-2.amazonaws.com/flask-app"
+        AWS_REGION = "us-west-2"
+        ECR_CREDENTIALS_ID = 'ecr-credentials'
+        KUBECONFIG_CREDENTIALS_ID = 'eks-kubeconfig'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:latest")
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    withDockerRegistry([credentialsId: ECR_CREDENTIALS_ID, url: 'https://aws_account_id.dkr.ecr.us-west-2.amazonaws.com']) {
+                        docker.image("${DOCKER_IMAGE}:latest").push("latest")
+                    }
+                }
+            }
+        }
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    def kubeconfig = readFile('kubeconfig')
+                    writeFile(file: '/root/.kube/config', text: kubeconfig)
+                    
+                    sh 'kubectl apply -f k8s/deployment.yaml'
+                    sh 'kubectl apply -f k8s/service.yaml'
+                }
+            }
+        }
+    }
+
+    triggers {
+        pollSCM('* * * * *')
+    }
+}
