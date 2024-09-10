@@ -34,20 +34,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to EKS') {
-            steps {
-                script {
-                    def kubeconfig = readFile('kubeconfig')
-                    writeFile(file: '/root/.kube/config', text: kubeconfig)
-                    
-                    sh 'kubectl apply -f k8s/deployment.yaml'
-                    sh 'kubectl apply -f k8s/service.yaml'
-                }
-            }
-        }
+    
     }
 
-    triggers {
-        pollSCM('* * * * *')
-    }
 }
