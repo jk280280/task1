@@ -2,12 +2,12 @@ pipeline {
     agent any
   parameters {
         string(name: 'DOCKER_IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to use')
-        string(name: 'AWS_REGION', defaultValue: 'us-west-2', description: 'AWS region for EKS and ECR')
+        string(name: 'AWS_REGION', defaultValue: 'us-west-1', description: 'AWS region for EKS and ECR')
         string(name: 'TERRAFORM_WORKSPACE', defaultValue: 'default', description: 'Terraform workspace name')
     }
     environment {
-        DOCKER_IMAGE = "aws_account_id.dkr.ecr.us-west-2.amazonaws.com/flask-app"
-        AWS_REGION = "us-west-2"
+        DOCKER_IMAGE = "aws_account_id.dkr.ecr.us-west-1.amazonaws.com/flask-app"
+        AWS_REGION = "us-west-1"
         ECR_CREDENTIALS_ID = 'ecr-credentials'
         KUBECONFIG_CREDENTIALS_ID = 'eks-kubeconfig'
     }
@@ -28,7 +28,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    withDockerRegistry([credentialsId: ECR_CREDENTIALS_ID, url: 'https://aws_account_id.dkr.ecr.us-west-2.amazonaws.com']) {
+                    withDockerRegistry([credentialsId: ECR_CREDENTIALS_ID, url: 'https://aws_account_id.dkr.ecr.us-west-1.amazonaws.com']) {
                         docker.image("${DOCKER_IMAGE}:latest").push("latest")
                     }
                 }
