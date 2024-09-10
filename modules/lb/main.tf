@@ -1,5 +1,5 @@
-resource "aws_elb" "this" {
-  name               = "my-load-balancer"
+resource "aws_elb" "app" {
+  name               = "app-load-balancer"
   availability_zones = ["us-east-1b", "us-east-1d"]
 
   listener {
@@ -18,7 +18,7 @@ resource "aws_elb" "this" {
   }
 
   tags = {
-    Name = "my-load-balancer"
+    Name = "app-load-balancer"
   }
 }
 
