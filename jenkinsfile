@@ -5,12 +5,7 @@
            string(name: 'ASG_NAME', defaultValue: 'example-asg', description: 'Auto Scaling Group Name')
        }
        stages {
-           stage('Checkout') {
-               steps {
-                   git 'https://github.com/username/repository.git'
-               }
-           }
-           stage('Terraform Apply') {
+            stage('Terraform Apply') {
                steps {
                    script {
                        withEnv(["AWS_REGION=${params.AWS_REGION}"]) {
