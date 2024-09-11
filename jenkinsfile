@@ -19,7 +19,7 @@
                steps {
                    script {
                        withEnv(["AWS_REGION=${params.AWS_REGION}"]) {
-                           sh 'ansible-playbook -i dynamic_inventory.py apache_playbook.yml'
+                           sh 'ansible-playbook -i dynamic_inventory.py playbook.yml'
                        }
                    }
                }
