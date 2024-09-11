@@ -21,7 +21,7 @@ environment {
            stage('Ansible Configure') {
             steps {
                 sh '''
-                ansible-playbook -i /home/ec2-user/task1/ansible/dynamic_inventory.py /home/ec2-user/task1/ansible/playbook.yml --private-key=${PRIVATE_KEY_PATH}
+                ansible-playbook -i ansible/dynamic_inventory.py ansible/playbook.yml --private-key=${PRIVATE_KEY_PATH}
                 '''
             }
         }
