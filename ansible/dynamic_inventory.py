@@ -2,42 +2,52 @@
 
 import boto3
 import json
-
-# Define your AWS region
-REGION_NAME = 'us-east-1'  # Replace with your AWS region
-
+import sys
 
 def get_asg_instances(asg_name):
-    client = boto3.client('autoscaling')
-    response = client.describe_auto_scaling_groups(AutoScalingGroupNames=[asg_name])
-    instances = []
-    for asg in response['AutoScalingGroups']:
-        for instance in asg['Instances']:
-            instances.append(instance['InstanceId'])
-    return instances
+    client = boto3.client('autoscaling', region_name='us-east-1')
+    ec2_client = boto3.client('ec2', region_name='us-east-1')
+    
+    try:
+        response = client.describe_auto_scaling_groups(AutoScalingGroupNames=[asg_name])
+        asg = response['AutoScalingGroups']
+        
+        if not asg:
+            raise ValueError(f"No Auto Scaling Group found with name: {asg_name}")
+        
+        asg_instances = asg[0].get('Instances', [])
+        
+        if not asg_instances:
+            return []
 
-def get_instance_ips(instance_ids):
-    client = boto3.client('ec2')
-    response = client.describe_instances(InstanceIds=instance_ids)
-    hosts = []
-    for reservation in response['Reservations']:
-        for instance in reservation['Instances']:
-            if 'PublicIpAddress' in instance:
-                hosts.append(instance['PublicIpAddress'])
-    return hosts
+        instance_ids = [i['InstanceId'] for i in asg_instances]
+        
+        # Fetch public IPs of instances
+        reservations = ec2_client.describe_instances(InstanceIds=instance_ids)
+        instances = []
+        for reservation in reservations['Reservations']:
+            for instance in reservation['Instances']:
+                if 'PublicIpAddress' in instance:
+                    instances.append(instance['PublicIpAddress'])
+        
+        return instances
+    except Exception as e:
+        print(f"Error fetching ASG instances: {e}")
+        return []
 
 def main():
-    asg_name = 'terraform-20240904141312458300000001'  # Replace with your ASG name 
-    instance_ids = get_asg_instances(asg_name)
-    hosts = get_instance_ips(instance_ids)
-    
-    inventory = {
-        'all': {
-            'hosts': hosts
+    asg_name = 'terraform-20240911103500987200000001'  # Update with your ASG name
+    try:
+        instances = get_asg_instances(asg_name)
+        inventory = {
+            'all': {
+                'hosts': instances
+            }
         }
-    }
-
-    print(json.dumps(inventory, indent=2))
+        print(json.dumps(inventory, indent=4))
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
