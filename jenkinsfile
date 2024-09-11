@@ -18,14 +18,13 @@ environment {
                    }
                }
            }*/
-           stage('Ansible Deploy') {
-               steps {
-                   script {
-                       withEnv(["AWS_REGION=${params.AWS_REGION}"]) {
-                           ansible-playbook -i dynamic_inventory.py playbook.yml --private-key=${PRIVATE_KEY_PATH}
-                       }
-                   }
-               }
-           }
+           stage('Ansible Configure') {
+            steps {
+                sh '''
+                ansible-playbook -i dynamic_inventory.py apache_playbook.yml --private-key=${PRIVATE_KEY_PATH}
+                '''
+            }
+        }
+    
        }
    }
