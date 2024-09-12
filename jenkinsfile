@@ -1,10 +1,8 @@
  pipeline {
        agent any
        parameters {
-        string(name: 'environment', defaultValue: 'terraform', description: 'Workspace/environment file to use for deployment')
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-        booleanParam(name: 'destroy', defaultValue: false, description: 'Destroy Terraform build?')
-
+        choice(name: 'ACTION', choices: ['Apply', 'Destroy'], description: 'Choose whether to apply or destroy the Terraform configuration')
+        booleanParam(name: 'AUTO_APPROVE', defaultValue: false, description: 'Automatically approve Terraform apply and destroy actions')
     }
 environment {
         PRIVATE_KEY_PATH = 'tf-tasks.pem'
@@ -20,14 +18,59 @@ environment {
                    }
                }
            }*/
-stage('Terraform') {
+stage('Terraform init') {
             steps {
 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
             sh 'terraform init'
-            sh "terraform destroy --auto-approve"
+           // sh "terraform destroy --auto-approve"
         }
     }
 }
+
+stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+        stage('Approve and Apply') {
+            when {
+                expression { params.ACTION == 'Apply' }
+            }
+            steps {
+                script {
+                    if (params.AUTO_APPROVE) {
+                        sh 'terraform apply -auto-approve tfplan'
+                    } else {
+          
+                        input message: 'Approve Terraform Apply?', ok: 'Apply'
+                        sh 'terraform apply tfplan'
+                    }
+                }
+            }
+        }
+        stage('Approve and Destroy') {
+            when {
+                expression { params.ACTION == 'Destroy' }
+            }
+            steps {
+                script {
+                    if (params.AUTO_APPROVE) {
+                        
+                        sh 'terraform destroy -auto-approve'
+                    } else {
+                       
+                        input message: 'Approve Terraform Destroy?', ok: 'Destroy'
+                        sh 'terraform destroy'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            
+            sh 'rm -f tfplan'
+        }
            stage('Ansible Configure') {
             steps {
                 sh '''
