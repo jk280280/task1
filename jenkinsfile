@@ -18,13 +18,14 @@ environment {
                    }
                }
            }*/
-
+stage('Terraform') {
+            steps {
 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
-        stage('Terraform Apply') {
             sh 'terraform init'
             sh 'terraform apply -auto-approve'
         }
     }
+}
            stage('Ansible Configure') {
             steps {
                 sh '''
