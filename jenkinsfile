@@ -29,7 +29,7 @@ withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 
            stage('Ansible Configure') {
             steps {
                 sh '''
-                ansible-playbook -i ansible/dynamic_inventory.py ansible/playbook.yml --private-key=${PRIVATE_KEY_PATH}
+                ansible-playbook -i ansible-playbook -i /var/lib/jenkins/workspace/task-1/ansible/dynamic_inventory.py /var/lib/jenkins/workspace/task-1/ansible/playbook.yml --private-key=${PRIVATE_KEY_PATH}
                 '''
             }
         }
