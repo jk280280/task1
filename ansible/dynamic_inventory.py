@@ -36,7 +36,7 @@ def get_asg_instances(asg_name):
         return []
 
 def main():
-    asg_name = 'terraform-20240911103500987200000001'  # Update with your ASG name
+    asg_name = 'terraform-20240912134216047600000001'  # Update with your ASG name
     try:
         instances = get_asg_instances(asg_name)
         inventory = {
