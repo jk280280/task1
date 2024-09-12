@@ -1,7 +1,6 @@
 terraform {
-  backend "s3" {
-    bucket         = "tf-infra-task1"
-    key            = "terraform/state"
-    region         = "us-east-1"
+  backend "local" {
+    path = "task1/terraform.tfstate"
   }
 }
+
