@@ -2,13 +2,13 @@
        agent any
        parameters {
            string(name: 'AWS_REGION', defaultValue: 'us-west-1', description: 'AWS Region')
-           string(name: 'ASG_NAME', defaultValue: 'terraform-20240911103500987200000001', description: 'Auto Scaling Group Name')
+           string(name: 'ASG_NAME', defaultValue: '', description: 'Auto Scaling Group Name')
        }
 environment {
         PRIVATE_KEY_PATH = 'tf-tasks.pem'
     }
        stages {
-            stage('Terraform Apply') {
+           /* stage('Terraform Apply') {
                steps {
                    script {
                        withEnv(["AWS_REGION=${params.AWS_REGION}"]) {
@@ -17,7 +17,14 @@ environment {
                        }
                    }
                }
-           }
+           }*/
+
+withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
+        stage('Terraform Apply') {
+            sh 'terraform init'
+            sh 'terraform apply -auto-approve'
+        }
+    }
            stage('Ansible Configure') {
             steps {
                 sh '''
@@ -27,14 +34,9 @@ environment {
         }
     
        }
-   }*/
+   }
 
-node {
-    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
-        stage('Terraform Apply') {
-            sh 'terraform init'
-            sh 'terraform apply -auto-approve'
-        }
-    }
-}
+
+    
+
 
