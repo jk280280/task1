@@ -1,6 +1,6 @@
 resource "aws_elb" "app" {
   name               = "app-load-balancer"
-  availability_zones = ["us-east-1b", "us-east-1d"]
+  availability_zones = ["us-west-1a", "us-west-1b"]
 
   listener {
     instance_port     = 80
