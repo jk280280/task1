@@ -32,7 +32,7 @@ resource "aws_launch_configuration" "app" {
   name          = "ec2-launch-configuration"
   image_id      = "ami-0731b5a29c85c1f0c"
   instance_type = "t3.micro"
-  key_name       = "tasks"
+  key_name       = "tf-tasks"
   security_groups = [aws_security_group.app.id]
   associate_public_ip_address = true
 
