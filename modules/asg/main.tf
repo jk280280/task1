@@ -30,7 +30,7 @@ egress {
 
 resource "aws_launch_configuration" "app" {
   name          = "ec2-launch-configuration"
-  image_id      = "ami-02c21308fed24a8ab"
+  image_id      = "ami-0731b5a29c85c1f0c"
   instance_type = "t3.micro"
   key_name       = "tasks"
   security_groups = [aws_security_group.app.id]
