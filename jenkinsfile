@@ -1,9 +1,11 @@
  pipeline {
        agent any
        parameters {
-           string(name: 'AWS_REGION', defaultValue: 'us-west-1', description: 'AWS Region')
-           string(name: 'ASG_NAME', defaultValue: '', description: 'Auto Scaling Group Name')
-       }
+        string(name: 'environment', defaultValue: 'terraform', description: 'Workspace/environment file to use for deployment')
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        booleanParam(name: 'destroy', defaultValue: false, description: 'Destroy Terraform build?')
+
+    }
 environment {
         PRIVATE_KEY_PATH = 'tf-tasks.pem'
     }
@@ -22,7 +24,7 @@ stage('Terraform') {
             steps {
 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
             sh 'terraform init'
-            sh 'terraform apply -auto-approve'
+            sh "terraform destroy --auto-approve"
         }
     }
 }
