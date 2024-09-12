@@ -5,8 +5,8 @@ import json
 import sys
 
 def get_asg_instances(asg_name):
-    client = boto3.client('autoscaling', region_name='us-east-1')
-    ec2_client = boto3.client('ec2', region_name='us-east-1')
+    client = boto3.client('autoscaling', region_name='us-west-1')
+    ec2_client = boto3.client('ec2', region_name='us-west-1')
     
     try:
         response = client.describe_auto_scaling_groups(AutoScalingGroupNames=[asg_name])
